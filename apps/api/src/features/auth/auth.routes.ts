@@ -62,4 +62,29 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.send({ success: true, data: user })
     },
   )
+
+  app.patch(
+    '/me',
+    {
+      preHandler: [requireAuth],
+      schema: {
+        tags: ['Auth'],
+        summary: 'Update user profile',
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            businessName: { type: 'string' },
+            businessType: { type: 'string' },
+            stage: { type: 'string' },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const user = await authService.updateProfile((request as any).user.userId, request.body as Record<string, string>)
+      return reply.send({ success: true, data: user })
+    },
+  )
 }

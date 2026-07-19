@@ -16,6 +16,7 @@ import { DocumentsPage } from '@/features/documents/DocumentsPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { AnalyticsPage } from '@/features/analytics/AnalyticsPage'
 import { BusinessPage } from '@/features/business/BusinessPage'
+import { OnboardingPage } from '@/features/onboarding/OnboardingPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()
@@ -40,6 +41,11 @@ export function Router() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/onboarding" element={
+        <ProtectedRoute>
+          <OnboardingPage />
+        </ProtectedRoute>
+      } />
       <Route
         path="/"
         element={

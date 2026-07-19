@@ -9,9 +9,10 @@ interface AuthState {
   setLoading: (loading: boolean) => void
   login: (user: User, accessToken: string, refreshToken: string) => void
   logout: () => void
+  updateUser: (data: Partial<User>) => void
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
@@ -26,5 +27,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     set({ user: null, isAuthenticated: false, isLoading: false })
+  },
+  updateUser: (data) => {
+    const current = get().user
+    if (current) set({ user: { ...current, ...data } })
   },
 }))

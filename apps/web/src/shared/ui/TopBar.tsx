@@ -2,9 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/features/auth/useAuth'
-import { LogOut, User, Settings, Building2, ChevronDown } from 'lucide-react'
+import { LogOut, User, Settings, Building2, ChevronDown, Menu } from 'lucide-react'
 
-export function TopBar() {
+interface TopBarProps {
+  onMenuToggle?: () => void
+}
+
+export function TopBar({ onMenuToggle }: TopBarProps) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
@@ -21,8 +25,14 @@ export function TopBar() {
   }, [])
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border bg-card px-6">
+    <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4 lg:px-6">
       <div className="flex items-center gap-3">
+        <button
+          onClick={onMenuToggle}
+          className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-accent transition-colors"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
       </div>
 
       <div className="flex items-center gap-4 relative" ref={dropdownRef}>

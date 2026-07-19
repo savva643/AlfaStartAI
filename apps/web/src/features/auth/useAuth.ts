@@ -5,7 +5,7 @@ import { useAuthStore } from './authStore'
 
 export function useAuth() {
   const navigate = useNavigate()
-  const { user, isAuthenticated, isLoading, login, logout } = useAuthStore()
+  const { user, isAuthenticated, isLoading, login, logout, updateUser } = useAuthStore()
 
   const registerMutation = useMutation({
     mutationFn: async (data: {
@@ -20,7 +20,7 @@ export function useAuth() {
     },
     onSuccess: (data) => {
       login(data.user, data.accessToken, data.refreshToken)
-      navigate('/dashboard')
+      navigate('/onboarding')
     },
   })
 
@@ -47,6 +47,7 @@ export function useAuth() {
     register: registerMutation.mutate,
     login: loginMutation.mutate,
     logout: handleLogout,
+    updateUser,
     isRegistering: registerMutation.isPending,
     isLoggingIn: loginMutation.isPending,
     registerError: registerMutation.error,

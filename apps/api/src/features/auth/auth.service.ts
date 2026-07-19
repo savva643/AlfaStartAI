@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../../shared/db/index.js'
 import { config } from '../../app/config/index.js'
-import { UnauthorizedError, ConflictError, NotFoundError } from '../../shared/errors/index.js'
+import { UnauthorizedError, ConflictError, NotFoundError, BadRequestError } from '../../shared/errors/index.js'
 import type { RegisterInput, LoginInput } from './auth.schema.js'
 
 function hashPassword(password: string): string {
@@ -98,6 +98,35 @@ export class AuthService {
     if (!user) {
       throw new NotFoundError('User not found')
     }
+
+    return user
+  }
+
+  async updateProfile(userId: string, data: Record<string, string>) {
+    const allowed = ['name', 'businessName', 'businessType', 'stage']
+    const updateData: Record<string, string> = {}
+    for (const key of allowed) {
+      if (data[key] !== undefined) updateData[key] = data[key]
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      throw new BadRequestError('No fields to update')
+    }
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        businessName: true,
+        businessType: true,
+        stage: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
 
     return user
   }
