@@ -7,11 +7,10 @@ import { Input } from '@/shared/ui/Input'
 import { useAuth } from '@/features/auth/useAuth'
 
 const steps = [
-  { id: 'welcome', title: 'Давайте приступим!', subtitle: 'Настроим ваш бизнес за пару шагов' },
-  { id: 'name', title: 'Название бизнеса', subtitle: 'Как называется ваш проект?' },
-  { id: 'type', title: 'Тип бизнеса', subtitle: 'Выберите категорию' },
-  { id: 'direction', title: 'Направление', subtitle: 'Чем именно занимается ваш бизнес?' },
-  { id: 'stage', title: 'Этап развития', subtitle: 'Где вы сейчас находитесь?' },
+  { id: 'welcome', title: 'Давайте приступим!', subtitle: 'Настроим ваш бизнес за 3 шага' },
+  { id: 'name', title: 'Как называется проект?', subtitle: 'Введите название вашего бизнеса' },
+  { id: 'type', title: 'Чем занимаетесь?', subtitle: 'Выберите тип и опишите направление' },
+  { id: 'stage', title: 'Где вы сейчас?', subtitle: 'Этап развития вашего бизнеса' },
 ]
 
 const businessTypes = [
@@ -28,12 +27,12 @@ const stages = [
 
 export function OnboardingPage() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { updateUser } = useAuth()
   const [step, setStep] = useState(0)
   const [direction, setDirection] = useState(1)
   const [form, setForm] = useState({
-    businessName: user?.businessName || '',
-    businessType: user?.businessType || '',
+    businessName: '',
+    businessType: '',
     businessDirection: '',
     stage: '',
   })
@@ -43,8 +42,7 @@ export function OnboardingPage() {
     if (step === 0) return true
     if (step === 1) return form.businessName.trim().length > 0
     if (step === 2) return form.businessType.length > 0
-    if (step === 3) return form.businessDirection.trim().length > 0
-    if (step === 4) return form.stage.length > 0
+    if (step === 3) return form.stage.length > 0
     return false
   }
 
@@ -67,12 +65,20 @@ export function OnboardingPage() {
   const finish = async () => {
     setIsFinishing(true)
     try {
-      const { api } = await import('@/shared/api/client')
-      await api.patch('/auth/me', {
+      const data: Record<string, string> = {
         businessName: form.businessName,
         businessType: form.businessType,
         stage: form.stage,
+      }
+      await fetch(`${import.meta.env.VITE_API_URL || '/api'}/auth/me`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+        body: JSON.stringify(data),
       })
+      updateUser(data)
     } catch {}
     setTimeout(() => navigate('/dashboard'), 800)
   }
@@ -85,7 +91,6 @@ export function OnboardingPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Progress */}
       <div className="px-6 pt-6">
         <div className="flex gap-2 max-w-md mx-auto">
           {steps.map((_, i) => (
@@ -102,7 +107,6 @@ export function OnboardingPage() {
         <p className="text-center text-xs text-muted-foreground mt-2">Шаг {step + 1} из {steps.length}</p>
       </div>
 
-      {/* Content */}
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="w-full max-w-md">
           <AnimatePresence mode="wait" custom={direction}>
@@ -120,76 +124,60 @@ export function OnboardingPage() {
                 <p className="text-muted-foreground mt-2">{steps[step]?.subtitle}</p>
               </div>
 
-              {/* Step 0: Welcome */}
               {step === 0 && (
                 <div className="text-center space-y-6">
                   <div className="w-20 h-20 mx-auto rounded-2xl bg-[#EF3E33]/10 flex items-center justify-center">
                     <Rocket className="h-10 w-10 text-[#EF3E33]" />
                   </div>
                   <div className="space-y-2">
-                    <p className="text-muted-foreground">
-                      Мы поможем вам превратить идею в работающий бизнес с помощью AI.
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Ответьте на несколько вопросов — и получите персональные рекомендации.
-                    </p>
+                    <p className="text-muted-foreground">Мы поможем вам превратить идею в работающий бизнес с помощью AI.</p>
+                    <p className="text-sm text-muted-foreground">Ответьте на 3 вопроса — и получите персональные рекомендации.</p>
                   </div>
                 </div>
               )}
 
-              {/* Step 1: Business Name */}
               {step === 1 && (
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Название проекта</label>
-                    <Input
-                      placeholder="Например: EcoDelivery"
-                      value={form.businessName}
-                      onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                      className="text-center text-lg"
-                      autoFocus
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Step 2: Business Type */}
-              {step === 2 && (
-                <div className="grid grid-cols-2 gap-3">
-                  {businessTypes.map((type) => (
-                    <button
-                      key={type}
-                      onClick={() => setForm({ ...form, businessType: type })}
-                      className={`rounded-xl border-2 p-4 text-center transition-all ${
-                        form.businessType === type
-                          ? 'border-[#EF3E33] bg-[#EF3E33]/5 shadow-sm'
-                          : 'border-border hover:border-[#EF3E33]/30'
-                      }`}
-                    >
-                      <span className="text-sm font-medium">{type}</span>
-                      {form.businessType === type && (
-                        <Check className="h-4 w-4 text-[#EF3E33] mx-auto mt-1" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* Step 3: Direction */}
-              {step === 3 && (
-                <div className="space-y-4">
                   <Input
-                    placeholder="Например: доставка еды, образовательная платформа, SaaS для стартапов..."
-                    value={form.businessDirection}
-                    onChange={(e) => setForm({ ...form, businessDirection: e.target.value })}
-                    className="text-center"
+                    placeholder="Например: EcoDelivery"
+                    value={form.businessName}
+                    onChange={(e) => setForm({ ...form, businessName: e.target.value })}
+                    className="text-center text-lg"
                     autoFocus
                   />
                 </div>
               )}
 
-              {/* Step 4: Stage */}
-              {step === 4 && (
+              {step === 2 && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    {businessTypes.map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setForm({ ...form, businessType: type })}
+                        className={`rounded-xl border-2 p-3 text-center transition-all ${
+                          form.businessType === type
+                            ? 'border-[#EF3E33] bg-[#EF3E33]/5 shadow-sm'
+                            : 'border-border hover:border-[#EF3E33]/30'
+                        }`}
+                      >
+                        <span className="text-sm font-medium">{type}</span>
+                        {form.businessType === type && (
+                          <Check className="h-4 w-4 text-[#EF3E33] mx-auto mt-1" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <Input
+                    placeholder="Опишите направление (доставка еды, образование...)"
+                    value={form.businessDirection}
+                    onChange={(e) => setForm({ ...form, businessDirection: e.target.value })}
+                    className="text-center"
+                  />
+                </div>
+              )}
+
+              {step === 3 && (
                 <div className="space-y-3">
                   {stages.map((s) => (
                     <button
@@ -215,7 +203,6 @@ export function OnboardingPage() {
         </div>
       </div>
 
-      {/* Navigation */}
       <div className="px-6 pb-8">
         <div className="flex gap-3 max-w-md mx-auto">
           {step > 0 && (

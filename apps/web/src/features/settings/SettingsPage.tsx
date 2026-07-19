@@ -4,7 +4,8 @@ import { User, Building2, Mail, Save } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/Card'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
-import { useAuthStore } from '@/features/auth/authStore'
+import { useAuth } from '@/features/auth/useAuth'
+import { api } from '@/shared/api/client'
 
 const container = {
   hidden: { opacity: 0 },
@@ -17,7 +18,7 @@ const item = {
 }
 
 export function SettingsPage() {
-  const { user, setUser } = useAuthStore()
+  const { user, updateUser } = useAuth()
   const [form, setForm] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -26,15 +27,15 @@ export function SettingsPage() {
   })
   const [isSaved, setIsSaved] = useState(false)
 
-  const handleSave = () => {
-    if (user) {
-      setUser({
-        ...user,
+  const handleSave = async () => {
+    try {
+      const res = await api.patch('/auth/me', {
         name: form.name,
         businessName: form.businessName,
         businessType: form.businessType,
       })
-    }
+      updateUser(res.data.data)
+    } catch {}
     setIsSaved(true)
     setTimeout(() => setIsSaved(false), 2000)
   }
@@ -47,7 +48,6 @@ export function SettingsPage() {
       </motion.div>
 
       <motion.div variants={container} initial="hidden" animate="show" className="max-w-2xl space-y-6">
-        {/* Profile */}
         <motion.div variants={item}>
           <Card>
             <CardHeader>
@@ -60,30 +60,17 @@ export function SettingsPage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="text-sm font-medium">Имя</label>
-                <Input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Ваше имя"
-                  className="mt-1"
-                />
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ваше имя" className="mt-1" />
               </div>
               <div>
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Mail className="h-3.5 w-3.5" />
-                  Email
-                </label>
-                <Input
-                  value={form.email}
-                  disabled
-                  className="mt-1 opacity-60"
-                />
+                <label className="text-sm font-medium flex items-center gap-2"><Mail className="h-3.5 w-3.5" /> Email</label>
+                <Input value={form.email} disabled className="mt-1 opacity-60" />
                 <p className="text-xs text-muted-foreground mt-1">Email нельзя изменить</p>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Business */}
         <motion.div variants={item}>
           <Card>
             <CardHeader>
@@ -96,37 +83,19 @@ export function SettingsPage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="text-sm font-medium">Название бизнеса</label>
-                <Input
-                  value={form.businessName}
-                  onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                  placeholder="Название вашего бизнеса"
-                  className="mt-1"
-                />
+                <Input value={form.businessName} onChange={(e) => setForm({ ...form, businessName: e.target.value })} placeholder="Название вашего бизнеса" className="mt-1" />
               </div>
               <div>
                 <label className="text-sm font-medium">Тип бизнеса</label>
-                <Input
-                  value={form.businessType}
-                  onChange={(e) => setForm({ ...form, businessType: e.target.value })}
-                  placeholder="SaaS, E-commerce, Fintech..."
-                  className="mt-1"
-                />
+                <Input value={form.businessType} onChange={(e) => setForm({ ...form, businessType: e.target.value })} placeholder="SaaS, E-commerce, Fintech..." className="mt-1" />
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Save */}
         <motion.div variants={item} className="flex justify-end">
           <Button onClick={handleSave} className="bg-[#EF3E33] hover:bg-[#EF3E33]/90 gap-2">
-            {isSaved ? (
-              <>Сохранено</>
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                Сохранить
-              </>
-            )}
+            {isSaved ? <>Сохранено</> : <><Save className="h-4 w-4" /> Сохранить</>}
           </Button>
         </motion.div>
       </motion.div>
