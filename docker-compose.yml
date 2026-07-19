@@ -58,17 +58,27 @@ services:
     networks:
       - alfastart
 
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    container_name: alfastart-web
+    restart: unless-stopped
+    networks:
+      - alfastart
+
   nginx:
     image: nginx:alpine
     container_name: alfastart-nginx
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "80:80"
     volumes:
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/alfa.conf:ro
       - ./apps/web/dist:/usr/share/nginx/html:ro
     depends_on:
       - api
+      - web
     networks:
       - alfastart
 
