@@ -16,7 +16,6 @@ import {
   Briefcase,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
-import { AlfaLogo } from './AlfaLogo'
 
 const navigation = [
   { name: 'Главная', href: '/dashboard', icon: LayoutDashboard },

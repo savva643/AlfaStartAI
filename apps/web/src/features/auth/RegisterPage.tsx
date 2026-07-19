@@ -5,7 +5,6 @@ import { Mail, Lock, User, ArrowRight } from 'lucide-react'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/Card'
-import { AlfaLogo } from '@/shared/ui/AlfaLogo'
 import { useAuth } from './useAuth'
 
 export function RegisterPage() {
