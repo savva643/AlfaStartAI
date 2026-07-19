@@ -19,7 +19,7 @@ import { cn } from '@/shared/lib/utils'
 import { AlfaLogo } from './AlfaLogo'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Главная', href: '/dashboard', icon: LayoutDashboard },
   { name: 'О бизнесе', href: '/business', icon: Briefcase },
   { name: 'AI Чат', href: '/chat', icon: MessageSquare },
   { name: 'Дорожная карта', href: '/roadmap', icon: Map },
@@ -43,7 +43,7 @@ export function Sidebar() {
       className="hidden w-[280px] flex-col border-r border-border bg-card lg:flex"
     >
       <div className="flex items-center gap-3 border-b border-border px-6 py-4">
-        <AlfaLogo size={36} />
+        <img src="/alfa.png" alt="Alfa" className="h-9 w-9 object-contain" />
         <div>
           <span className="text-lg font-bold">Alfa Start</span>
           <span className="text-lg font-light text-muted-foreground">AI</span>

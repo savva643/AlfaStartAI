@@ -7,7 +7,7 @@ import {
 import { cn } from '@/shared/lib/utils'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Главная', href: '/dashboard', icon: LayoutDashboard },
   { name: 'О бизнесе', href: '/business', icon: Briefcase },
   { name: 'AI Чат', href: '/chat', icon: MessageSquare },
   { name: 'Дорожная карта', href: '/roadmap', icon: Map },
@@ -48,10 +48,8 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           >
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EF3E33]">
-                  <span className="text-white text-sm font-bold">A</span>
-                </div>
-                <span className="font-semibold">Alfa Start</span>
+                <img src="/alfa.png" alt="Alfa" className="h-7 w-7 object-contain" />
+                <span className="font-semibold">Alfa Start AI</span>
               </div>
               <button onClick={onClose} className="p-1 rounded-lg hover:bg-accent">
                 <X className="h-5 w-5" />

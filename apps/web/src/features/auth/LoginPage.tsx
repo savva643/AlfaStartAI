@@ -37,7 +37,7 @@ export function LoginPage() {
             transition={{ type: 'spring', stiffness: 200, damping: 15 }}
             className="mx-auto mb-4 flex h-12 w-12 items-center justify-center"
           >
-            <AlfaLogo size={48} />
+            <img src="/alfa.png" alt="Alfa" className="h-12 w-12 object-contain" />
           </motion.div>
           <h1 className="text-2xl font-bold">Alfa Start AI</h1>
           <p className="mt-1 text-muted-foreground">AI-операционная система для предпринимателей</p>

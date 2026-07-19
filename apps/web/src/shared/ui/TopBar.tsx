@@ -33,6 +33,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
         >
           <Menu className="h-5 w-5" />
         </button>
+        <img src="/alfa.png" alt="Alfa" className="h-7 w-7 object-contain lg:hidden" />
       </div>
 
       <div className="flex items-center gap-4 relative" ref={dropdownRef}>
