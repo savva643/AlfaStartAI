@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: alfastart-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: alfa_start_ai
+    volumes:
+      - alfastart_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - alfastart
+
+  redis:
+    image: redis:7-alpine
+    container_name: alfastart-redis
+    restart: unless-stopped
+    volumes:
+      - alfastart_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - alfastart
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    container_name: alfastart-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      API_PORT: 3001
+      API_HOST: 0.0.0.0
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/alfa_start_ai
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: alfa-start-ai-production-secret-2025
+      JWT_EXPIRES_IN: 7d
+      OPENROUTER_API_KEY: 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
+      DEFAULT_MODEL: ${DEFAULT_MODEL:-meta-llama/llama-3.1-8b-instruct:free}
+      FALLBACK_MODEL: ${FALLBACK_MODEL:-meta-llama/llama-3.1-8b-instruct:free}
+      AI_TEMPERATURE: 0.7
+      AI_MAX_TOKENS: 1024
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - alfastart
+
+  nginx:
+    image: nginx:alpine
+    container_name: alfastart-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/alfa.conf:ro
+      - ./apps/web/dist:/usr/share/nginx/html:ro
+    depends_on:
+      - api
+    networks:
+      - alfastart
+
+volumes:
+  alfastart_pgdata:
+  alfastart_redisdata:
+
+networks:
+  alfastart:
+    driver: bridge

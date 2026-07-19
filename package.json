@@ -1,0 +1,37 @@
+{
+  "name": "alfa-start-ai",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI Operating System for young entrepreneurs",
+  "scripts": {
+    "dev": "concurrently \"pnpm dev:api\" \"pnpm dev:web\"",
+    "dev:api": "pnpm --filter @alfa-start/api dev",
+    "dev:web": "pnpm --filter @alfa-start/web dev",
+    "build": "pnpm --filter @alfa-start/shared build && pnpm --filter @alfa-start/api build && pnpm --filter @alfa-start/web build",
+    "build:shared": "pnpm --filter @alfa-start/shared build",
+    "build:api": "pnpm --filter @alfa-start/api build",
+    "build:web": "pnpm --filter @alfa-start/web build",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate": "pnpm --filter @alfa-start/api db:migrate",
+    "db:generate": "pnpm --filter @alfa-start/api db:generate",
+    "db:seed": "pnpm --filter @alfa-start/api db:seed",
+    "db:push": "pnpm --filter @alfa-start/api db:push",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

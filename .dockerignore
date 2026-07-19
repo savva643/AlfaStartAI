@@ -1,0 +1,14 @@
+node_modules
+**/node_modules
+**/dist
+**/.next
+.git
+.mimocode
+*.log
+.env
+apps/api/.env
+apps/api/node_modules
+apps/web/node_modules
+packages/shared/node_modules
+apps/web/dist
+apps/api/dist
