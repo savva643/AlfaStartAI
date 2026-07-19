@@ -72,7 +72,7 @@ services:
     container_name: alfastart-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/alfa.conf:ro
       - ./apps/web/dist:/usr/share/nginx/html:ro

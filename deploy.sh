@@ -1,54 +1,33 @@
 #!/bin/bash
-
-# Alfa Start AI - Deployment Script
+# Alfa Start AI - Production Deployment
 # Server: 64.188.124.65
 # Domain: alfa.necsoura.ru
-
 set -e
 
-echo "=== Alfa Start AI Deployment ==="
-echo "Server: 64.188.124.65"
-echo "Domain: alfa.necsoura.ru"
-echo ""
+echo "=== Alfa Start AI ==="
 
-# Check Docker
-if ! command -v docker &> /dev/null; then
-    echo "Installing Docker..."
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sh get-docker.sh
-    rm get-docker.sh
+# Install certbot
+echo "[1/4] Installing certbot..."
+if ! command -v certbot &> /dev/null; then
+    apt-get update -qq && apt-get install -y -qq certbot python3-certbot-nginx > /dev/null 2>&1
 fi
 
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-    echo "Installing Docker Compose..."
-    apt-get update && apt-get install -y docker-compose-plugin
-fi
-
-echo "=== Building and starting services ==="
-
-# Stop any existing containers
+# Build and start
+echo "[2/4] Building..."
 docker compose down 2>/dev/null || true
-
-# Build and start all services
 docker compose up -d --build
+echo "Waiting..."
+sleep 15
 
-# Wait for services to be healthy
-echo "Waiting for services to start..."
-sleep 10
+# DB
+echo "[3/4] Database..."
+docker exec alfastart-api sh -c "DATABASE_URL='postgresql://postgres:postgres@postgres:5432/alfa_start_ai' node /app/node_modules/.pnpm/prisma@6.19.3_typescript@5.9.3/node_modules/prisma/build/index.js db push --schema /app/apps/api/prisma/schema.prisma --skip-generate" 2>/dev/null || true
 
-# Run database migrations
-echo "Running database migrations..."
-docker exec alfastart-api node apps/api/node_modules/.bin/prisma db push --schema apps/api/prisma/schema.prisma --skip-generate 2>/dev/null || true
-
-# Verify services
-echo ""
-echo "=== Service Status ==="
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+# SSL
+echo "[4/4] SSL..."
+certbot --nginx -d alfa.necsoura.ru --non-interactive --agree-tos --email admin@necsoura.ru --redirect 2>/dev/null || echo "Run later: certbot --nginx -d alfa.necsoura.ru --redirect"
 
 echo ""
-echo "=== Deployment Complete ==="
-echo "Frontend: http://alfa.necsoura.ru"
-echo "API Docs: http://alfa.necsoura.ru/docs"
-echo "Health:   http://alfa.necsoura.ru/health"
+docker ps --format "table {{.Names}}\t{{.Status}}" | grep alfastart
 echo ""
-echo "Don't forget to add A record for alfa.necsoura.ru pointing to 64.188.124.65"
+echo "=== https://alfa.necsoura.ru ==="
